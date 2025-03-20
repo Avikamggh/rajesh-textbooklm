@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TextbookLM</title>
+    <style>
+        :root {
+            --primary: #4285f4;
+            --secondary: #fbbc05;
+            --accent: #34a853;
+            --error: #ea4335;
+            --background: #f8f9fa;
+            --paper: #ffffff;
+            --text: #202124;
+            --text-secondary: #5f6368;
+            --border: #dadce0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Google Sans', Arial, sans-serif;
+        }
+
+        body {
+            /* THREE-COLOR GRADIENT BACKGROUND */
+            background: linear-gradient(135deg, #e0f7fa 0%, #bbdefb 50%, #d1c4e9 100%);
+            background-attachment: fixed;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            background-color: var(--paper);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--primary);
+            margin-right: auto;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 8px;
+            background-color: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 240px;
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(5px);
+            border-right: 1px solid var(--border);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .new-notebook {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            transition: background-color 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .new-notebook:hover {
+            background-color: #3367d6;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-item.active {
+            background-color: rgba(66, 133, 244, 0.1);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .nav-item-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .notebooks-container {
+            flex: 1;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .notebook-card {
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(5px);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .notebook-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .notebook-card-header {
+            height: 120px;
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            opacity: 0.8;
+            position: relative;
+        }
+
+        .notebook-card-content {
+            padding: 16px;
+        }
+
+        .notebook-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .notebook-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .notebook-meta {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 64px 24px;
+            color: var(--text-secondary);
+            background-color: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(5px);
+            border-radius: 12px;
+            margin: 32px;
+        }
+
+        .welcome-message h2 {
+            font-size: 24px;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+
+        .welcome-message p {
+            font-size: 16px;
+            max-width: 600px;
+            margin: 0 auto 24px;
+        }
+
+        .welcome-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .welcome-button {
+            padding: 8px 16px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .primary-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .primary-button:hover {
+            background-color: #3367d6;
+        }
+
+        .secondary-button {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .secondary-button:hover {
+            background-color: rgba(66, 133, 244, 0.05);
+        }
+
+        .action-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 8px;
+            padding: 8px;
+            border-radius: 50%;
+            color: var(--text-secondary);
+            transition: background-color 0.2s;
+        }
+
+        .action-button:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <div class="logo-icon">N</div>
+            TextbookLM
+        </div>
+        <button class="action-button">?</button>
+        <button class="action-button">⚙️</button>
+        <button class="action-button">👤</button>
+    </header>
+
+    <div class="main-content">
+        <div class="sidebar">
+            <button class="new-notebook">+ New notebook</button>
+            <div class="nav-item active">
+                <span class="nav-item-icon">📚</span>
+                My notebooks
+            </div>
+            <div class="nav-item">
+                <span class="nav-item-icon">🔄</span>
+                Shared with me
+            </div>
+            <div class="nav-item">
+                <span class="nav-item-icon">🗑️</span>
+                Trash
+            </div>
+        </div>
+
+        <div class="notebooks-container">
+            <div class="welcome-message">
+                <h2>Welcome to TextbookLM</h2>
+                <p>Upload your documents and use AI to explore, understand, and create with your knowledge.</p>
+                <div class="welcome-actions">
+                    <button class="welcome-button primary-button">Create notebook</button>
+                    <button class="welcome-button secondary-button">Watch tutorial</button>
+                </div>
+            </div>
+
+            <div class="notebook-card">
+                <div class="notebook-card-header"></div>
+                <div class="notebook-card-content">
+                    <div class="notebook-title">Research Project</div>
+                    <div class="notebook-description">AI conference notes and research papers</div>
+                    <div class="notebook-meta">
+                        Last opened Mar 15, 2025
+                    </div>
+                </div>
+            </div>
+
+            <div class="notebook-card">
+                <div class="notebook-card-header"></div>
+                <div class="notebook-card-content">
+                    <div class="notebook-title">Marketing Strategy</div>
+                    <div class="notebook-description">Q1 2025 marketing plans</div>
+                    <div class="notebook-meta">
+                        Last opened Mar 10, 2025
+                    </div>
+                </div>
+            </div>
+
+            <div class="notebook-card">
+                <div class="notebook-card-header"></div>
+                <div class="notebook-card-content">
+                    <div class="notebook-title">Book Analysis</div>
+                    <div class="notebook-description">Notes and summaries from recent readings</div>
+                    <div class="notebook-meta">
+                        Last opened Mar 5, 2025
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple interactivity for demo purposes
+        document.querySelectorAll('.notebook-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelector('.main-content').innerHTML = `
+                    <div class="sidebar">
+                        <button class="new-notebook">+ New notebook</button>
+                        <div class="nav-item active">
+                            <span class="nav-item-icon">📚</span>
+                            My notebooks
+                        </div>
+                        <div class="nav-item">
+                            <span class="nav-item-icon">🔄</span>
+                            Shared with me
+                        </div>
+                        <div class="nav-item">
+                            <span class="nav-item-icon">🗑️</span>
+                            Trash
+                        </div>
+                    </div>
+                    
+                    <div class="workspace">
+                        <div class="workspace-header">
+                            <div class="workspace-title">Research Project</div>
+                            <div class="workspace-actions">
+                                <button class="action-button">🔍</button>
+                                <button class="action-button">⬆️</button>
+                                <button class="action-button">⚙️</button>
+                            </div>
+                        </div>
+                        
+                        <div class="notebook-area">
+                            <div class="notebook-content">
+                                <div class="message">
+                                    <div class="ai-message">
+                                        I've analyzed your research papers. What would you like to know about them?
+                                    </div>
+                                </div>
+                                
+                                <div class="message">
+                                    <div class="user-message">
+                                        Can you summarize the key findings across all the AI conference papers?
+                                    </div>
+                                </div>
+                                
+                                <div class="message">
+                                    <div class="ai-message">
+                                        Across the AI conference papers you've uploaded, several key trends emerge:
+                                        <br><br>
+                                        1. Large language models are increasingly being fine-tuned for specialized domains like healthcare, legal, and scientific research.
+                                        <br><br>
+                                        2. Researchers are focusing on reducing computational requirements while maintaining performance.
+                                        <br><br>
+                                        3. Multimodal models that combine text, vision, and audio are showing promising results for complex reasoning tasks.
+                                        <br><br>
+                                        4. There's growing emphasis on responsible AI development, with new techniques for bias mitigation and explainability.
+                                        <br><br>
+                                        Would you like me to elaborate on any of these areas?
+                                    </div>
+                                </div>
+                                
+                                <div class="input-container">
+                                    <textarea class="message-input" placeholder="Ask a question..."></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="sources-panel">
+                                <div class="panel-heading">Sources (5)</div>
+                                
+                                <div class="source-item">
+                                    <div class="source-title">ICLR 2025 - Efficient Multimodal Reasoning</div>
+                                    <div class="source-preview">
+                                        This paper introduces a novel architecture for multimodal reasoning that reduces computational requirements by 40% while maintaining state-of-the-art performance...
+                                    </div>
+                                </div>
+                                
+                                <div class="source-item">
+                                    <div class="source-title">NeurIPS 2024 - Domain Adaptation in LLMs</div>
+                                    <div class="source-preview">
+                                        We present a technique for efficiently adapting large language models to specialized domains using a fraction of the typical fine-tuning data...
+                                    </div>
+                                </div>
+                                
+                                <div class="source-item">
+                                    <div class="source-title">ACL 2024 - Bias Mitigation Techniques</div>
+                                    <div class="source-preview">
+                                        This comprehensive study evaluates seven different approaches to reducing gender and cultural bias in large language models...
+                                    </div>
+                                </div>
+                                
+                                <div class="source-item">
+                                    <div class="source-title">EMNLP 2024 - Explainable AI for Medical Applications</div>
+                                    <div class="source-preview">
+                                        Our framework provides transparent reasoning paths for clinical decision support, addressing a key challenge in healthcare AI adoption...
+                                    </div>
+                                </div>
+                                
+                                <div class="source-item">
+                                    <div class="source-title">CVPR 2024 - Vision-Language Models for Scientific Discovery</div>
+                                    <div class="source-preview">
+                                        By combining visual and textual information, our model can identify patterns in scientific data that were previously overlooked...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Make the textarea grow as content is added
+                const textarea = document.querySelector('.message-input');
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = (this.scrollHeight) + 'px';
+                });
+            });
+        });
+
+        // Make the new notebook button work
+        document.querySelector('.new-notebook').addEventListener('click', () => {
+            alert('Creating a new notebook!');
+        });
+    </script>
+
+<script>
+    // Link the "New notebook" button in the sidebar
+    document.querySelector('.new-notebook').addEventListener('click', () => {
+        window.location.href = 'newnotebook.html';
+    });
+
+    // Link the "Create notebook" button in the welcome message
+    document.querySelector('.welcome-button.primary-button').addEventListener('click', () => {
+        window.location.href = 'newnotebook.html';
+    });
+
+    // Make the notebook cards clickable (linking to workspace page)
+    document.querySelectorAll('.notebook-card').forEach(card => {
+        card.addEventListener('click', () => {
+            window.location.href = 'workspace.html';
+        });
+    });
+
+    // Ensure the home link in the logo works
+    document.querySelector('.logo').addEventListener('click', () => {
+        window.location.href = 'index.html';
+    });
+</script>
+</body>
+</html>

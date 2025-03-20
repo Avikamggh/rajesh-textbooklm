@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NotebookLM - Workspace</title>
+    <style>
+        :root {
+            --primary: #4285f4;
+            --secondary: #fbbc05;
+            --accent: #34a853;
+            --error: #ea4335;
+            --background: #f8f9fa;
+            --paper: #ffffff;
+            --text: #202124;
+            --text-secondary: #5f6368;
+            --border: #dadce0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Google Sans', Arial, sans-serif;
+        }
+
+        body {
+            /* THREE-COLOR GRADIENT BACKGROUND */
+            background: linear-gradient(135deg, #e0f7fa 0%, #bbdefb 50%, #d1c4e9 100%);
+            background-attachment: fixed;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            background-color: var(--paper);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--primary);
+            margin-right: auto;
+            cursor: pointer;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 8px;
+            background-color: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .action-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 8px;
+            padding: 8px;
+            border-radius: 50%;
+            color: var(--text-secondary);
+            transition: background-color 0.2s;
+        }
+
+        .action-button:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 240px;
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(5px);
+            border-right: 1px solid var(--border);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .new-notebook {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            transition: background-color 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .new-notebook:hover {
+            background-color: #3367d6;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-item.active {
+            background-color: rgba(66, 133, 244, 0.1);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .nav-item-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(5px);
+        }
+
+        .workspace-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+        }
+
+        .workspace-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .workspace-actions {
+            margin-left: auto;
+            display: flex;
+        }
+
+        .mode-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+        }
+
+        .mode-tab {
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .mode-tab:hover {
+            color: var(--text);
+        }
+
+        .mode-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .notebook-area {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 64px - 56px - 43px);
+        }
+
+        .notebook-content {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            max-width: 800px;
+            margin: 0 auto;
+            overflow-y: auto;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 24px;
+            max-width: 100%;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 18px 4px 18px 18px;
+            padding: 12px 16px;
+            max-width: 70%;
+            margin-left: auto;
+        }
+
+        .ai-message {
+            background-color: #f1f3f4;
+            color: var(--text);
+            border-radius: 4px 18px 18px 18px;
+            padding: 12px 16px;
+            max-width: 70%;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 18px;
+            background-color: #f1f3f4;
+            max-width: fit-content;
+            margin-bottom: 16px;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            margin: 0 2px;
+            background-color: var(--text-secondary);
+            border-radius: 50%;
+            display: inline-block;
+            opacity: 0.4;
+        }
+
+        .typing-indicator span:nth-child(1) {
+            animation: typing 1s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation: typing 1s infinite 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation: typing 1s infinite 0.4s;
+        }
+
+        @keyframes typing {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
+        .prompt-suggestions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .prompt-chip {
+            background-color: #e8f0fe;
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: 1px solid var(--primary);
+        }
+
+        .prompt-chip:hover {
+            background-color: #d2e3fc;
+        }
+
+        .input-container {
+            margin-top: auto;
+            padding: 16px 0;
+            position: relative;
+        }
+
+        .message-input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            background-color: #f1f3f4;
+            font-size: 14px;
+            resize: none;
+            min-height: 48px;
+            max-height: 120px;
+            transition: border-color 0.2s;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .send-button {
+            position: absolute;
+            right: 12px;
+            bottom: 28px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        /* THREE-COLOR GRADIENT FOR SOURCES PANEL */
+        .sources-panel {
+            width: 320px;
+            background: linear-gradient(135deg, #ffcdd2 0%, #f8bbd0 50%, #e1bee7 100%);
+            border-left: 1px solid var(--border);
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .panel-heading {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(66, 133, 244, 0.3);
+        }
+
+        .panel-actions {
+            font-size: 14px;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .source-item {
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .source-item:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .source-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .source-preview {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" id="home-link">
+            <div class="logo-icon">N</div>
+            NotebookLM
+        </div>
+        <button class="action-button">?</button>
+        <button class="action-button">⚙️</button>
+        <button class="action-button">👤</button>
+    </header>
+
+    <div class="main-content">
+        <div class="sidebar">
+            <button class="new-notebook">+ New notebook</button>
+            <div class="nav-item active">
+                <span class="nav-item-icon">📚</span>
+                My notebooks
+            </div>
+            <div class="nav-item">
+                <span class="nav-item-icon">🔄</span>
+                Shared with me
+            </div>
+            <div class="nav-item">
+                <span class="nav-item-icon">🗑️</span>
+                Trash
+            </div>
+        </div>
+
+        <div class="workspace">
+            <div class="workspace-header">
+                <div class="workspace-title">My Notebook</div>
+                <div class="workspace-actions">
+                    <button class="action-button">🔍</button>
+                    <button class="action-button">⬆️</button>
+                    <button class="action-button">⚙️</button>
+                </div>
+            </div>
+
+            <div class="mode-tabs">
+                <div class="mode-tab active">Chat</div>
+                <div class="mode-tab">Analyze</div>
+                <div class="mode-tab">Create</div>
+            </div>
+            
+            <div class="notebook-area">
+                <div class="notebook-content">
+                    <div class="prompt-suggestions">
+                        <div class="prompt-chip">Summarize my documents</div>
+                        <div class="prompt-chip">Compare Project A and B</div>
+                        <div class="prompt-chip">Recommend next steps</div>
+                    </div>
+
+                    <div class="message">
+                        <div class="ai-message">
+                            I've analyzed your uploaded documents. How can I help you understand or work with this content?
+                        </div>
+                    </div>
+                    
+                    <div class="input-container">
+                        <textarea class="message-input" placeholder="Message NotebookLM..."></textarea>
+                        <button class="send-button">➤</button>
+                    </div>
+                </div>
+                
+                <div class="sources-panel">
+                    <div class="panel-heading">
+                        Sources
+                        <span class="panel-actions">Manage</span>
+                    </div>
+                    
+                    <div class="source-item">
+                        <div class="source-title">Q1 2025 Analytics Report.pdf</div>
+                        <div class="source-preview">
+                            The quarterly analysis shows a 15% increase in user engagement compared to Q4 2024, with mobile usage accounting for...
+                        </div>
+                    </div>
+                    
+                    <div class="source-item">
+                        <div class="source-title">Project Requirements.docx</div>
+                        <div class="source-preview">
+                            Project goals include improving conversion rates by at least 10% and reducing bounce rates on the landing page...
+                        </div>
+                    </div>
+                    
+                    <div class="source-item">
+                        <div class="source-title">Research Notes.txt</div>
+                        <div class="source-preview">
+                            User interviews revealed that the onboarding process is considered too complex by 67% of new users, with most...
+                        </div>
+                    </div>
+                    
+                    <div class="source-item">
+                        <div class="source-title">User Metrics.xlsx</div>
+                        <div class="source-preview">
+                            Key metrics for Q1 show retention rates of 72% for Premium tier and 48% for Basic tier. Session duration...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Basic functionality for demo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Make sure text area expands with content
+            const messageInput = document.querySelector('.message-input');
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight < 120 ? this.scrollHeight : 120) + 'px';
+            });
+            
+            // Make logo clickable
+            document.querySelector('.logo').addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+            
+            // New notebook button
+            document.querySelector('.new-notebook').addEventListener('click', function() {
+                window.location.href = 'new-notebook-page.html';
+            });
+            
+            // Prompt chips functionality
+            document.querySelectorAll('.prompt-chip').forEach(chip => {
+                chip.addEventListener('click', function() {
+                    messageInput.value = this.textContent;
+                    messageInput.focus();
+                    // Trigger input event to resize textarea
+                    const event = new Event('input', {
+                        bubbles: true,
+                        cancelable: true,
+                    });
+                    messageInput.dispatchEvent(event);
+                });
+            });
+            
+            // Send button functionality
+            const sendButton = document.querySelector('.send-button');
+            const notebookContent = document.querySelector('.notebook-content');
+            
+            function sendMessage() {
+                const messageText = messageInput.value.trim();
+                if (!messageText) return;
+                
+                // Add user message
+                const userMessageDiv = document.createElement('div');
+                userMessageDiv.className = 'message';
+                userMessageDiv.innerHTML = `<div class="user-message">${messageText}</div>`;
+                notebookContent.appendChild(userMessageDiv);
+                
+                // Clear input
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+                
+                // Show typing indicator
+                const typingIndicator = document.createElement('div');
+                typingIndicator.className = 'typing-indicator';
+                typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+                notebookContent.appendChild(typingIndicator);
+                
+                // Scroll to bottom
+                notebookContent.scrollTop = notebookContent.scrollHeight;
+                
+                // Simulate AI response after delay
+                setTimeout(() => {
+                    // Remove typing indicator
+                    typingIndicator.remove();
+                    
+                    // Generate AI response based on user message
+                    let aiResponse;
+                    
+                    if (messageText.toLowerCase().includes('summarize')) {
+                        aiResponse = 'Based on your documents, I can summarize the key points:<br><br>1. The data shows a clear trend of increasing user engagement over Q1 2025.<br><br>2. Revenue metrics have improved by approximately 15% compared to the previous quarter.<br><br>3. The analysis suggests that the new feature rollout had a positive impact on user retention.';
+                    } else if (messageText.toLowerCase().includes('compare') || messageText.toLowerCase().includes('difference')) {
+                        aiResponse = 'Comparing the project results:<br><br>Project A showed 22% growth while Project B had 18% growth. However, Project B required 30% less resources, making its ROI significantly higher. The key difference appears to be in the implementation strategy rather than the technology stack used.';
+                    } else if (messageText.toLowerCase().includes('recommend') || messageText.toLowerCase().includes('suggest')) {
+                        aiResponse = 'Based on your documents, I would recommend:<br><br>1. Prioritizing the mobile experience optimization, as the data shows 67% of users access the platform via mobile devices.<br><br>2. Focusing on the user onboarding flow improvements, which could increase conversion by an estimated 12-15% according to your research notes.<br><br>3. Consider A/B testing the new pricing model before full implementation.';
+                    } else {
+                        aiResponse = 'I\'ve analyzed your documents and found several insights related to your query. The data suggests that the trends you\'re seeing are consistent with industry benchmarks. Would you like me to elaborate on any specific aspect or provide a more detailed analysis?';
+                    }
+                    
+                    // Add AI message
+                    const aiMessageDiv = document.createElement('div');
+                    aiMessageDiv.className = 'message';
+                    aiMessageDiv.innerHTML = `<div class="ai-message">${aiResponse}</div>`;
+                    notebookContent.appendChild(aiMessageDiv);
+                    
+                    // Scroll to bottom
+                    notebookContent.scrollTop = notebookContent.scrollHeight;
+                }, 1500);
+            }
+            
+            // Send message when button is clicked
+            sendButton.addEventListener('click', sendMessage);
+            
+            // Send message when Enter is pressed (without Shift)
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // Mode tabs functionality
+            document.querySelectorAll('.mode-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    alert(`Switched to ${tab.textContent} mode`);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

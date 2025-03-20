@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NotebookLM - New Notebook</title>
+    <style>
+        :root {
+            --primary: #4285f4;
+            --secondary: #fbbc05;
+            --accent: #34a853;
+            --error: #ea4335;
+            --background: #f8f9fa;
+            --paper: #ffffff;
+            --text: #202124;
+            --text-secondary: #5f6368;
+            --border: #dadce0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Google Sans', Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            background-color: var(--paper);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--primary);
+            margin-right: auto;
+            cursor: pointer;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 8px;
+            background-color: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 240px;
+            background-color: var(--paper);
+            border-right: 1px solid var(--border);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .new-notebook {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            transition: background-color 0.2s;
+        }
+
+        .new-notebook:hover {
+            background-color: #3367d6;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-item.active {
+            background-color: rgba(66, 133, 244, 0.1);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .nav-item-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .create-container {
+            flex: 1;
+            padding: 32px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 24px;
+            color: var(--text);
+        }
+
+        .notebook-form {
+            background-color: var(--paper);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        textarea.form-input {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        .upload-area:hover {
+            background-color: rgba(66, 133, 244, 0.05);
+            border-color: var(--primary);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            font-size: 16px;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .upload-hint {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .files-list {
+            margin-top: 16px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: rgba(66, 133, 244, 0.1);
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .file-icon {
+            margin-right: 8px;
+            color: var(--primary);
+        }
+
+        .file-name {
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .file-remove {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color 0.2s;
+        }
+
+        .file-remove:hover {
+            color: var(--error);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #3367d6;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(66, 133, 244, 0.05);
+        }
+
+        .action-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 8px;
+            padding: 8px;
+            border-radius: 50%;
+            color: var(--text-secondary);
+            transition: background-color 0.2s;
+        }
+
+        .action-button:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .suggested-sources {
+            margin-top: 24px;
+        }
+
+        .suggested-heading {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .source-card {
+            background-color: var(--paper);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .source-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .source-icon {
+            height: 100px;
+            background-color: #e8f0fe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: var(--primary);
+        }
+
+        .source-content {
+            padding: 12px;
+        }
+
+        .source-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .source-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo" id="home-link">
+            <div class="logo-icon">N</div>
+            NotebookLM
+        </div>
+        <button class="action-button">?</button>
+        <button class="action-button">⚙️</button>
+        <button class="action-button">👤</button>
+    </header>
+
+    <div class="main-content">
+        <div class="sidebar">
+            <button class="new-notebook" id="new-notebook-btn">+ New notebook</button>
+            <div class="nav-item active" id="my-notebooks">
+                <span class="nav-item-icon">📚</span>
+                My notebooks
+            </div>
+            <div class="nav-item" id="shared-with-me">
+                <span class="nav-item-icon">🔄</span>
+                Shared with me
+            </div>
+            <div class="nav-item" id="trash">
+                <span class="nav-item-icon">🗑️</span>
+                Trash
+            </div>
+        </div>
+
+        <div class="create-container">
+            <h1 class="page-title">Create new notebook</h1>
+            
+            <div class="notebook-form">
+                <div class="form-group">
+                    <label class="form-label" for="notebook-name">Notebook name</label>
+                    <input type="text" id="notebook-name" class="form-input" placeholder="Enter a name for your notebook">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="notebook-description">Description (optional)</label>
+                    <textarea id="notebook-description" class="form-input" placeholder="Add a description for your notebook"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Upload sources</label>
+                    <div class="upload-area" id="upload-area">
+                        <div class="upload-icon">📄</div>
+                        <div class="upload-text">Drop files here or click to browse</div>
+                        <div class="upload-hint">PDF, DOCX, TXT, CSV, XLSX up to 200MB each</div>
+                        <input type="file" id="file-input" class="file-input" multiple>
+                    </div>
+                    
+                    <div class="files-list" id="files-list">
+                        <!-- File items will be added here -->
+                    </div>
+                </div>
+                
+                <div class="suggested-sources">
+                    <h3 class="suggested-heading">Suggested sources from your Drive</h3>
+                    <div class="sources-grid">
+                        <div class="source-card">
+                            <div class="source-icon">📊</div>
+                            <div class="source-content">
+                                <div class="source-title">Q1 2025 Analytics Report.pdf</div>
+                                <div class="source-meta">PDF • 2.4MB • Mar 10, 2025</div>
+                            </div>
+                        </div>
+                        
+                        <div class="source-card">
+                            <div class="source-icon">📝</div>
+                            <div class="source-content">
+                                <div class="source-title">Project Requirements.docx</div>
+                                <div class="source-meta">DOCX • 1.1MB • Mar 12, 2025</div>
+                            </div>
+                        </div>
+                        
+                        <div class="source-card">
+                            <div class="source-icon">📑</div>
+                            <div class="source-content">
+                                <div class="source-title">Research Notes.txt</div>
+                                <div class="source-meta">TXT • 45KB • Mar 15, 2025</div>
+                            </div>
+                        </div>
+                        
+                        <div class="source-card">
+                            <div class="source-icon">📈</div>
+                            <div class="source-content">
+                                <div class="source-title">User Metrics.xlsx</div>
+                                <div class="source-meta">XLSX • 820KB • Mar 14, 2025</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
+                    <button class="btn btn-primary" id="create-btn">Create notebook</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation links
+        document.getElementById('home-link').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+        
+        document.getElementById('my-notebooks').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+        
+        document.getElementById('new-notebook-btn').addEventListener('click', () => {
+            // Already on this page, no need to navigate
+        });
+        
+        document.getElementById('cancel-btn').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+        
+        // File upload handling
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const filesList = document.getElementById('files-list');
+        
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = var('--primary');
+            uploadArea.style.backgroundColor = 'rgba(66, 133, 244, 0.05)';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '';
+            uploadArea.style.backgroundColor = '';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '';
+            uploadArea.style.backgroundColor = '';
+            
+            if (e.dataTransfer.files.length > 0) {
+                handleFiles(e.dataTransfer.files);
+            }
+        });
+        
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                handleFiles(fileInput.files);
+            }
+        });
+        
+        function handleFiles(files) {
+            for (const file of files) {
+                addFileToList(file);
+            }
+        }
+        
+        function addFileToList(file) {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            
+            let fileIcon = '📄';
+            if (file.name.endsWith('.pdf')) fileIcon = '📕';
+            if (file.name.endsWith('.docx')) fileIcon = '📝';
+            if (file.name.endsWith('.txt')) fileIcon = '📄';
+            if (file.name.endsWith('.csv')) fileIcon = '📊';
+            if (file.name.endsWith('.xlsx')) fileIcon = '📈';
+            
+            fileItem.innerHTML = `
+                <span class="file-icon">${fileIcon}</span>
+                <span class="file-name">${file.name}</span>
+                <button class="file-remove">✕</button>
+            `;
+            
+            const removeBtn = fileItem.querySelector('.file-remove');
+            removeBtn.addEventListener('click', () => {
+                fileItem.remove();
+            });
+            
+            filesList.appendChild(fileItem);
+        }
+        
+        // Create notebook button
+        document.getElementById('create-btn').addEventListener('click', () => {
+            const notebookName = document.getElementById('notebook-name').value;
+            if (!notebookName) {
+                alert('Please enter a notebook name');
+                return;
+            }
+            
+            const description = document.getElementById('notebook-description').value;
+            const files = document.querySelectorAll('.file-item').length;
+            
+            if (files === 0) {
+                alert('Please upload at least one source file');
+                return;
+            }
+            
+            // Simulate notebook creation
+            alert(`Creating notebook "${notebookName}" with ${files} sources...`);
+            
+            // Redirect to workspace page
+            window.location.href = 'workspace.html';
+        });
+        
+        // Make the suggested sources selectable
+        document.querySelectorAll('.source-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const title = card.querySelector('.source-title').textContent;
+                addFileToList({ name: title });
+            });
+        });
+    </script>
+</body>
+</html>
